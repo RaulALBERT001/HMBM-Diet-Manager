@@ -9,10 +9,6 @@ import java.util.Base64;
 import java.util.List;
 
 
-
-
-
-
 public class JwtSecretGenerator {
     private static final String ENV_FILE = "C:\\HMBM-Diet-Manager\\.env";
     private static final String JWT_SECRET_NAME = "JWT_SECRET";
