@@ -4,139 +4,188 @@ The porpouse of this project is to create an Diet manager MVP(mainly for educati
 
 # How do i run this project?
 
-This guide explains how to set up and run the HMBM-Diet-Manager project.
+See it on the EXPLANATION.md
 
-1. Required Technologies
-Before you begin, ensure you have the following installed:
+#Product Requirement Document(PRD)
 
-Java Development Kit (JDK): Version 17 or higher is generally recommended for modern Spring Boot applications. Please check your project's pom.xml (if using Maven) or build.gradle (if using Gradle) for the specific Java version defined (usually under a <java.version> or sourceCompatibility property).
-Apache Maven or Gradle: This project is a Spring Boot application, which typically uses Maven (look for a pom.xml file in the project root c:\HMBM-Diet-Manager) or Gradle (look for build.gradle). Install the respective build tool.
-Database Server: The project uses Spring Data JPA, indicating a need for a relational database. You'll need to choose and install one. Common choices include:
-MySQL
-PostgreSQL
-H2 (often used for development/testing due to its embedded nature)
-SQL Server
-Oracle You will configure the connection details in the application.properties file.
-IDE (Optional but Recommended): An Integrated Development Environment like IntelliJ IDEA, Eclipse, or VS Code (with Java and Spring Boot extensions) can simplify development and running the application.
-Key Technologies Used in This Project:
+To get a better "overview" about the project, read the PRD below:
 
-Spring Boot: The core framework used for building the application.
-Spring Security: Handles authentication and authorization, as seen in files like SecurityConfiguration.java and JwtAuthenticationFilter.java.
-Spring Data JPA: Used for database interaction, with entities like UserEntity and repositories like UserRepository.
-Hibernate: The default JPA implementation used by Spring Boot.
-JWT (JSON Web Tokens): Used for stateless authentication, managed by JwtService.
-Lombok: A library to reduce boilerplate Java code (e.g., getters, setters, constructors), evident from annotations like @Getter, @Setter, @Builder, @RequiredArgsConstructor in various classes.
-2. Configuration
-You'll need to configure environment variables (for JWT secret) and application properties (for database connection, JWT settings, etc.).
 
-2.1. Environment Variables (.env file)
-The project includes a utility, JwtSecretGenerator.java, which suggests the use of a .env file for storing the JWT_SECRET. This file is expected to be at the project root: C:\HMBM-Diet-Manager\.env.
 
-The JwtService uses @Value("${jwt.secret}") and @Value("${jwt.expirationMS}"). These properties need to be available to the Spring application.
+## 1. Project Overview
 
-Steps to generate/update JWT_SECRET using JwtSecretGenerator.java:
+**Project Title:** Diet Manager MVP
 
-Locate the utility: The file is at c:\HMBM-Diet-Manager\src\main\java\com\M\N0\HMBM\Diet\utils\JwtSecretGenerator.java.
-Run JwtSecretGenerator.java:
-You can run this Java class directly from your IDE.
-Alternatively, compile and run it from the command line:
-bash
-Run
-cd c:\HMBM-Diet-Manager\src\main\java\com\M\N0\HMBM\Diet\utilsjavac JwtSecretGenerator.javajava com.M.N0.HMBM.Diet.utils.JwtSecretGenerator
-This will create or update the C:\HMBM-Diet-Manager\.env file with a line like:
-plaintext
+**Status:** Early-stage / Concept Validation
 
-JWT_SECRET=your_generated_secure_random_key_here
-Take note of this generated key.
-Important Note on Spring and .env files: Spring Boot doesn't natively load .env files into its Environment for @Value resolution by default. The JwtSecretGenerator writes to .env, but for Spring's JwtService to pick up jwt.secret and jwt.expirationMS, you have a few options:
+**Target Release:** [TBD – Recommend starting with a closed beta within 3–6 months]
 
-Explicitly set them in application.properties (recommended for clarity, see next section). You would copy the value from the .env file.
-Use a library like io.github.cdimascio:dotenv-java and configure it to load .env variables into system properties before Spring starts.
-Set them as actual system environment variables.
-For simplicity, this guide will assume you'll set them in application.properties.
+**Participants & Roles:**
 
-2.2. Application Properties (src/main/resources/application.properties)
-Create or update the application.properties file located in the src/main/resources directory. If this directory or file doesn't exist, you'll need to create them.
+- **Product Owner:** Raul Sergio Alberti
+- **Development Lead:** Raul Sergio Alberti
+- **UI/UX Designer:** Raul Sergio Alberti
+- **QA/Test Engineer:** Raul Sergio Alberti
+- **Stakeholders:** Raul Sergio Albert, potential early users (health enthusiasts, nutritionists)
 
-This file is crucial for Spring Boot configuration.
+---
 
-Example application.properties:
+## 2. Business Goals & Objectives
 
-properties
+**Business Goals:**
 
-# Server Configurationserver.port=8080 # Default port is 8080, change if needed# Database Configuration (Choose one section and adapt to your database)# Example for MySQL:# spring.datasource.url=jdbc:mysql://localhost:3306/hmbm_diet_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true# spring.datasource.username=your_mysql_user# spring.datasource.password=your_mysql_password# spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver# spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect# Example for PostgreSQL:# spring.datasource.url=jdbc:postgresql://localhost:5432/hmbm_diet_db# spring.datasource.username=your_postgres_user# spring.datasource.password=your_postgres_password# spring.datasource.driver-class-name=org.postgresql.Driver# spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect# Example for H2 (In-Memory Database - good for quick testing, data lost on shutdown):spring.datasource.url=jdbc:h2:mem:hmbmdietdbspring.datasource.username=saspring.datasource.password=passwordspring.datasource.driver-class-name=org.h2.Driverspring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialectspring.h2.console.enabled=true # To access H2 console at /h2-consolespring.h2.console.path=/h2-console# JPA/Hibernate Configurationspring.jpa.hibernate.ddl-auto=update # Options: none, validate, update, create, create-drop                                     #                                      'update                                     ' is                                      conveni                                     ent                                      for                                      develop                                     ment.                                     #                                      'create                                     ' or                                      'create                                     -drop'                                      will                                      recreat                                     e                                      tables                                      (data                                      lost).                                     #                                      'valida                                     te'                                      checks                                      schema                                      against                                                                           entitie                                     s.                                     #                                      'none'                                      does                                      nothing                                      to                                      the                                      schema.spring.jpa.show-sql=true             # Set to 'false' in production for cleaner logs.# JWT Configuration# Copy the secret generated by JwtSecretGenerator.java into jwt.secretjwt.secret=your_generated_secure_random_key_here_from_step_2.1jwt.expirationMS=86400000 # Token expiration time in milliseconds (e.g., 24 hours = 24 * 60 * 60 * 1000)                          # This value is                           used by                           JwtService's                           @Value("${jwt.                          expirationMS}")# Enable JPA Auditing (already handled by @EnableJpaAuditing in HmbmDietManagerApplication.java)# No specific property needed here if @EnableJpaAuditing is present.
-Explanation of Key Properties:
+- Validate the core concept of a diet management tool with a focus on ease of use and personalization.
+- Establish product-market fit by tracking early user behaviors and feedback.
+- Lay the groundwork for a scalable and modular architecture for later features and integrations.(such as using ai to create diets, based on especific parameters, for example: Vegan diet with x macros of protein, and x macros of carb , with growing muscle mass goal)w
 
-server.port: The network port on which the application will listen.
-spring.datasource.url: The JDBC connection URL for your database.
-Replace placeholders like hmbm_diet_db, localhost, port numbers, usernames, and passwords with your actual database details.
-spring.datasource.username: The username for your database connection.
-spring.datasource.password: The password for your database connection.
-spring.datasource.driver-class-name: The fully qualified name of the JDBC driver for your database.
-spring.jpa.properties.hibernate.dialect: Helps Hibernate generate SQL optimized for your specific database.
-spring.jpa.hibernate.ddl-auto: Controls Hibernate's schema generation strategy. Use update or validate for development against an existing schema, or create/create-drop if you want Hibernate to manage schema creation (be careful, as this can lead to data loss).
-spring.jpa.show-sql: If true, Hibernate will log all executed SQL statements to the console.
-jwt.secret: CRITICAL. This is the secret key used to sign and verify JWTs. It must be the same key generated by JwtSecretGenerator.java (or any other secure key you decide to use).
-jwt.expirationMS: The duration for which JWTs will be valid, in milliseconds. The JwtService uses this value.
-3. Database Setup
-Install your chosen database server (e.g., MySQL, PostgreSQL) if you are not using H2 in-memory.
-If not using H2 or ddl-auto=create, create a new database (e.g., hmbm_diet_db or the name you specified in spring.datasource.url).
-If applicable, create a database user with the necessary permissions (connect, DML, DDL if Hibernate is managing the schema) for the database, matching the credentials in application.properties.
-Ensure your database server is running and accessible from the machine where you'll run the Spring Boot application.
-4. Build and Run the Project
-Using Apache Maven (if your project has a pom.xml file)
-Open a terminal or command prompt.
-Navigate to the project root directory: cd c:\HMBM-Diet-Manager
-Clean and build the project (this will download dependencies and compile the code):
-bash
-Run
-mvn clean install
-Run the application:
-bash
-Run
-mvn spring-boot:run
-Alternatively, after a successful build, you can run the packaged JAR file (typically found in the target directory):
-bash
-Run
-java -jar target/your-application-name.jar
-(Replace your-application-name.jar with the actual name of the JAR file, e.g., HMBM-Diet-Manager-0.0.1-SNAPSHOT.jar).
-Using Gradle (if your project has a build.gradle file)
-Open a terminal or command prompt.
-Navigate to the project root directory: cd c:\HMBM-Diet-Manager
-Clean and build the project:
-bash
-Run
-./gradlew clean build
-(On Windows, you might use gradlew.bat clean build).
-Run the application:
-bash
-Run
-./gradlew bootRun
-(On Windows: gradlew.bat bootRun).
-Using an IDE (IntelliJ IDEA, Eclipse, VS Code)
-Import the project into your IDE (usually by opening the pom.xml or build.gradle file).
-Ensure your configurations from step 2 (.env content reflected in application.properties) are correctly set up.
-Locate the main application class: HmbmDietManagerApplication.
-Right-click on this file in your IDE and select "Run" or "Debug". The IDE will handle the build and execution.
-5. Accessing the Application
-Once the application is running (you should see Spring Boot startup logs, often ending with a line indicating the application has started on a specific port), you can interact with it:
 
-API Endpoints: The application exposes REST APIs. The base URL will typically be http://localhost:YOUR_PORT (e.g., http://localhost:8080 if you used the default port).
-Authentication Endpoints: Located under /auth (e.g., /auth/signup, /auth/login), as defined in AuthenticationController. These are generally accessible without prior authentication, as per your SecurityConfiguration.java (.requestMatchers("/auth/**").permitAll()).
-Protected Endpoints: Other endpoints, like /users/me (from UserController), will require a valid JWT Bearer token in the Authorization header of your HTTP requests.
-CORS: Your SecurityConfiguration.java is configured to allow requests from http://localhost:8005. If your frontend application (if any) is running on a different origin (domain or port), you'll need to update the setAllowedOrigins list in the corsConfigurationSource bean within SecurityConfiguration.java.
-Troubleshooting Tips
-Port Conflict: If you see an error like "Port XXXX already in use," change the server.port in application.properties to an available port.
-Database Connection Issues:
-Verify all spring.datasource.* properties in application.properties.
-Ensure your database server is running and accessible.
-Check database user credentials and permissions.
-Look for detailed error messages in the application logs and your database server logs.
-JWT Errors / Authentication Failures:
-Double-check that the jwt.secret in application.properties is exactly the one you intend to use (e.g., from the .env file generated by JwtSecretGenerator.java).
-Ensure tokens are not expired.
-Dependency Issues (ClassNotFoundException, etc.):
-Run a clean build (mvn clean install or ./gradlew clean build --refresh-dependencies).
-Ensure your IDE has correctly imported the project and resolved dependencies.
-Check Application Logs: The console output from Spring Boot will contain valuable information, including error messages and stack traces, which can help diagnose problems.
-This guide should provide a solid foundation for getting the HMBM-Diet-Manager project up and running. Good luck!
+**Objectives:**
+
+- Provide users with an intuitive interface to set dietary goals, plan meals, and track their nutritional intake.
+- Use user data to offer personalized insights (calories, macronutrients, food recommendations).
+- Ensure secure user authentication and data storage with modern technologies.
+
+---
+
+## 3. Background and Strategic Fit
+
+**Why Build It?**
+
+The rise in health awareness and diet-related issues has created a demand for simple, yet effective, tools that help users manage their eating habits. Diet Manager addresses:
+
+- **Personalized Diet Tracking:** Users often struggle to keep track of their nutritional intake. This tool provides a centralized way to log daily meals.
+- **Goal Management:** It helps users set goals (weight loss, muscle gain, maintenance) and monitor progress.
+- **User-Friendly Interface:** By offering a modern, responsive UI, the product aims to reduce the friction many users face with complex diet apps.
+- **Ai Diet Generation**: users can generate a diest based on specific parameters given by the user
+
+**Strategic Fit:**
+
+This MVP will serve as the foundation to expand into a comprehensive diet and wellness platform that could eventually include additional integrations (e.g., wearable devices, recipe suggestions, community features).
+
+---
+
+## 4. Assumptions
+
+- **Target Users:** Individuals interested in improving their diet, fitness enthusiasts, and users who want easy tracking of nutritional intake.
+- **Market Readiness:** Users are accustomed to using any kinds of application for health and diet management.
+- **Data Privacy:** Users expect secure handling of personal and nutritional data.
+- **Tech Readiness:** The chosen technology stack (Spring Boot, React, SQL, JWT, Redux) is deemed sufficient to support rapid development and scalability.
+- **Development Process:** The project will follow agile methodologies, with iterative development cycles and regular stakeholder reviews.
+
+---
+
+## 5. Core Features & User Stories
+
+### 5.1. User Management & Authentication
+
+- **Feature:** User Registration & Login
+    - **Description:** Allow users to register with email or social login, leveraging JWT for secure authentication.
+    - **User Story:** *“As a new user, I want to register and securely log in so that I can access my personalized diet data.”*
+- **Feature:** Profile Management
+    - **Description:** Users can update their personal details, dietary preferences, and goals.
+    - **User Story:** *“As a logged-in user, I want to update my profile information so that my diet recommendations are accurately tailored.”*
+
+### 5.2. Dashboard & Data Visualization
+
+- **Feature:** Overview Dashboard
+    - **Description:** A user-friendly landing page summarizing daily/weekly progress including calories, macros, and goal tracking.
+    - **User Story:** *“As a user, I want to view a daily dashboard that visualizes my nutritional intake and progress towards my diet goals.”*
+
+### 5.3. Meal Planning & Tracking
+
+- **Feature:** Meal Logging
+    - **Description:** Users can log meals (breakfast, lunch, dinner, snacks) with options to search or manually input foods.
+    - **User Story:** *“As a user, I want to log my meals quickly so that I can track my daily nutritional intake.”*
+- **Feature:** Nutrient Breakdown and Analysis
+    - **Description:** Automatic calculation of calories, macronutrients, and micronutrients for each logged meal.
+    - **User Story:** *“As a user, I want to see a detailed breakdown of the nutritional content of my meals so I can adjust my diet if needed.”*
+
+### 5.4. Goal Setting & Recommendations
+
+- **Feature:** Personalized Diet Goals
+    - **Description:** Users can set their dietary goals (e.g., weight loss, muscle gain, maintenance) and track progress.
+    - **User Story:** *“As a user, I want to set and adjust my diet goals so that the system can suggest tailored meal plans.”*
+- **Feature:** Food Recommendations (Future Iteration)
+    - **Description:** Using stored data and possibly third-party APIs, the app could recommend recipes and foods that meet user dietary restrictions.
+    - **User Story:** *“As a user, I want to receive meal recommendations based on my dietary preferences so I can discover new healthy recipes.”*
+
+### 5.5. Reporting and Analytics
+
+- **Feature:** Weekly/Monthly Reports
+    - **Description:** Generate summary reports on dietary intake, nutrient consumption, and progress trends.
+    - **User Story:** *“As a user, I want to view reports of my dietary progress over time to understand how I’m progressing toward my goals.”*
+
+---
+
+## 6. Technical & Integration Considerations
+
+**Backend (Spring Boot REST API):**
+
+- Expose secure endpoints for registration, meal logging, and data retrieval.
+- Use JWT with Spring Security for authentication.
+- Containerize the application for scalable deployment (e.g., Docker).
+
+**Frontend (React.js SPA):**
+
+- Develop a responsive UI that communicates with the backend API.
+- Use Redux for state management, especially for user sessions and data flow.
+- Separate build and deployment streams for frontend (static hosting) and backend (containerized deployment).
+
+**Database (SQL):**
+
+- Schema design to support user profiles, meals, nutritional data, and progress logs.
+- Implement strong data integrity checks and backup routines.
+
+**Deployment & Scalability:**
+
+- Separate deployments enable easier scaling and maintenance.
+- Use CI/CD pipelines (integrated with GitHub) for automated builds, tests, and deployments.
+
+---
+
+## 7. User Interaction and Design Considerations
+
+- **Wireframes & Mockups:** Start with low-fidelity sketches focusing on the dashboard, meal logging interface, and profile screens. Early user testing sessions (even with a few friends or target users) can provide insights.
+- **UX Flow:** Ensure that logging in, meal tracking, and dashboard navigation are streamlined with minimal friction.
+- **Visual Style:** Clean and modern UI inspired by health-tracking apps. Consistent visual hierarchy (colors, typography) that emphasizes important actions and data visualizations.
+
+---
+
+## 8. Open Questions & Research Items
+
+| **Open Question** | **Notes/Action Items** |
+| --- | --- |
+| How granular should the meal logging be? | Decide whether to support portion sizes, ingredient-level detail, etc. |
+| Third-party integrations | Should we integrate public food databases or nutritional APIs from the start? |
+| Offline functionality | Consider if the MVP will support offline mode or deferred syncing. |
+| Data Privacy Compliance | Confirm requirements (e.g., GDPR, HIPAA if targeting specific regions) for handling nutritional data. |
+
+---
+
+## 9. Out of Scope (Initial MVP)
+
+- **Social & Community Features:** No friend networks, messaging, or public sharing in the first version.
+- **Advanced Analytics:** Deep insights, machine learning-based recommendations, or predictive analytics can be deferred.
+- **Wearable Device Integration:** Focus on core meal and diet tracking; integrations can be planned for future releases.
+- **In-app Purchases/Monetization:** This phase focuses on functionality and user validation. Monetization strategies can be explored later.
+
+---
+
+## 10. Success Metrics
+
+- **User Engagement:** Track daily active users, frequency of meal logs, and feature usage.
+- **User Retention:** Monitor retention rates over 30, 60, and 90 days post-signup.
+- **Goal Achievement:** Measure how many users set and update goals, and correlate with reported progress.
+- **Performance Metrics:** API response times, UI responsiveness, and system uptime.
+- **User Feedback:** Through surveys, interviews, and analytics to iterate on features.
+
+---
+
+## 11. Next Steps
+
+1. **Finalize Wireframes:** Develop initial prototypes for the core screens.
+2. **Set Up Development Environment:** Configure code repositories, CI/CD pipelines, and containerization.
+3. **Sprint Planning:** Break down features into user stories for agile iterations.
+4. **User Testing:** Engage with a small group of target users during beta to validate core functionalities.
+5. **Iterate & Expand:** Refine features based on feedback and plan for additional functionalities in subsequent releases.
+
